@@ -135,8 +135,8 @@
 		},
 		{
 			"uuid": "577615b8-2157-46ec-801b-843a4b19b7f7",
-			"title": "Dodging",
-			"description": "Allow player to dodge in a specific direction",
+			"title": "Dodging (update task)",
+			"description": "Allow player to dodge in a specific direction (will need to consider player stamina to avoid this being abused for faster movement)",
 			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
 			"steps": [
 				{
