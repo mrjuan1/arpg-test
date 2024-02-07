@@ -1,0 +1,330 @@
+{
+	"categories": [
+		{
+			"uuid": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"title": "Task",
+			"color": "babbf1"
+		}
+	],
+	"stages": [
+		{
+			"uuid": "ce0fbf89-95d3-435e-86b2-c0b76725c140",
+			"title": "Todo",
+			"tasks": [
+				"577615b8-2157-46ec-801b-843a4b19b7f7",
+				"78cb8e58-dd5e-4314-b2eb-4d343c2d3a7b",
+				"dd046923-0203-4e97-bebe-399e7b8844cf",
+				"760b6b1f-1646-47e1-b83a-827e088f0e8b",
+				"0fd43be0-7958-47b6-9627-787294cb115a",
+				"962c7907-0f49-49e0-9c0c-d3ef8fe9ce02",
+				"6f89c9f2-9c44-4d26-967a-28d4c9c3b3ff",
+				"66b3230c-fa4e-4f88-a4cd-2ed0c80656a1",
+				"e9f31649-123f-4af8-88df-9c61a52ab470",
+				"e0350452-e5f3-4cce-9be6-f8bf077c3e0e",
+				"983faf93-a624-495d-a0b6-47b6428b4442",
+				"a2b717b4-d6d3-4860-bca7-5cb2fd15bb6e",
+				"506e8a1c-94cf-4b00-90c4-e4d403cfc963"
+			]
+		},
+		{
+			"uuid": "e2179ada-f7c4-493e-b2a9-c16a843d214d",
+			"title": "Doing",
+			"tasks": [
+				"58de9f0d-e99e-4b92-9130-f87490dd43e3"
+			]
+		},
+		{
+			"uuid": "3e5dea2a-dc95-43f3-a1d1-a46400572214",
+			"title": "Done",
+			"tasks": [
+				"2329ac21-6436-4ae3-a93b-2f9cd4d77d8a",
+				"e7e2deba-9b7a-4983-a055-922ee4b2b052",
+				"51a96ffc-eb4b-4547-a7dc-83a05db2ccea",
+				"55c33b7b-a1d2-4d8c-9348-9161bb2e0637"
+			]
+		}
+	],
+	"tasks": [
+		{
+			"uuid": "2329ac21-6436-4ae3-a93b-2f9cd4d77d8a",
+			"title": "Play-test area",
+			"description": "Create a play-testing area",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": [
+				{
+					"details": "Collideable floor",
+					"done": true
+				},
+				{
+					"details": "Floor texture",
+					"done": true
+				},
+				{
+					"details": "Add environment",
+					"done": true
+				},
+				{
+					"details": "Add lighting",
+					"done": true
+				},
+				{
+					"details": "Add quitting with escape",
+					"done": true
+				}
+			]
+		},
+		{
+			"uuid": "e7e2deba-9b7a-4983-a055-922ee4b2b052",
+			"title": "Player and camera",
+			"description": "Add a player character and a camera to follow them",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": [
+				{
+					"details": "Add player character",
+					"done": true
+				},
+				{
+					"details": "Add camera to character",
+					"done": true
+				}
+			]
+		},
+		{
+			"uuid": "55c33b7b-a1d2-4d8c-9348-9161bb2e0637",
+			"title": "Player movement",
+			"description": "Add player movement",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": [
+				{
+					"details": "Setup input map",
+					"done": true
+				},
+				{
+					"details": "Add basic player movement",
+					"done": true
+				}
+			]
+		},
+		{
+			"uuid": "58de9f0d-e99e-4b92-9130-f87490dd43e3",
+			"title": "Jumping",
+			"description": "Allow player to jump",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": [
+				{
+					"details": "Add player jumping",
+					"done": true
+				},
+				{
+					"details": "Refine movement",
+					"done": true
+				},
+				{
+					"details": "Refine jumping",
+					"done": true
+				},
+				{
+					"details": "Camera to catch up post-jump",
+					"done": false
+				},
+				{
+					"details": "Add double-jumping",
+					"done": true
+				}
+			]
+		},
+		{
+			"uuid": "577615b8-2157-46ec-801b-843a4b19b7f7",
+			"title": "Dodging",
+			"description": "Allow player to dodge in a specific direction",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": [
+				{
+					"details": "Add player dodging",
+					"done": false
+				}
+			]
+		},
+		{
+			"uuid": "78cb8e58-dd5e-4314-b2eb-4d343c2d3a7b",
+			"title": "Attacking",
+			"description": "Allow player to attack using a specific input",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": [
+				{
+					"details": "Add basic attacking",
+					"done": false
+				}
+			]
+		},
+		{
+			"uuid": "dd046923-0203-4e97-bebe-399e7b8844cf",
+			"title": "Attack combos",
+			"description": "Allow player to have incremental attack combinations. Each time the attack button is pressed, depending on the progress of the attack, another will be lined up. The amount of these should be limited and each ones' strength should vary as stats are implemented later",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": [
+				{
+					"details": "Add attack chaining",
+					"done": false
+				},
+				{
+					"details": "Limit amount of attacks per combo",
+					"done": false
+				},
+				{
+					"details": "Allow for future additional parameters to be set per-attack",
+					"done": false
+				}
+			]
+		},
+		{
+			"uuid": "760b6b1f-1646-47e1-b83a-827e088f0e8b",
+			"title": "Projectiles (magic)",
+			"description": "Allow player to fire a projectile. Firing a projectile should use some sort of stat (to be implemented later). Once this stat is depleted, the player will either have to wait for it to be recharged, or use an item or buff of sorts to refill it",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": [
+				{
+					"details": "Add projectile firing",
+					"done": false
+				},
+				{
+					"details": "Allow for projectile firing events to affect later stats",
+					"done": false
+				}
+			]
+		},
+		{
+			"uuid": "0fd43be0-7958-47b6-9627-787294cb115a",
+			"title": "Stats",
+			"description": "Add character stats. This will include basic RPG stats such as HP, str, def, magic, etc. Later, equipment, items and buffs can also affect these stats temporarily or permanently. Magic will have a separate stat for each type available.",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": [
+				{
+					"details": "Add HP",
+					"done": false
+				},
+				{
+					"details": "Add event for HP reaching 0",
+					"done": false
+				},
+				{
+					"details": "Add str and def",
+					"done": false
+				},
+				{
+					"details": "Add variable amount of magic capacities",
+					"done": false
+				},
+				{
+					"details": "Add magic strength for each type",
+					"done": false
+				}
+			]
+		},
+		{
+			"uuid": "962c7907-0f49-49e0-9c0c-d3ef8fe9ce02",
+			"title": "Enemies",
+			"description": "Use the existing player built to create AI-controlled enemies. Enemies can have a random or fixed path and will react to a player or companion (later) depending on either distance (only when target is moving) or line-of-sight. They will also react to being attacked.\n\nFrom there, the enemy should pursue the target character until they leave the line of sight, in which case they will move toward the last spot they saw the target character. If they lose their target, they'll make their wait back to their original location and resume their idle behaviour.\n\nAt a certain distance from their target, they will attack. Target can change depending on who attacked them last.",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": [
+				{
+					"details": "Add enemy character from player charatcer's build",
+					"done": false
+				},
+				{
+					"details": "Add enemy idle behaviour",
+					"done": false
+				},
+				{
+					"details": "Add enemy character detection\n\nRemember, this is movement from a certain distance, line of sight, or being attacked.",
+					"done": false
+				},
+				{
+					"details": "Add character pursuing",
+					"done": false
+				},
+				{
+					"details": "Allow enemy to lose target and return to idle",
+					"done": false
+				},
+				{
+					"details": "Add enemy attacking",
+					"done": false
+				},
+				{
+					"details": "Add enemy target-switching",
+					"done": false
+				}
+			]
+		},
+		{
+			"uuid": "6f89c9f2-9c44-4d26-967a-28d4c9c3b3ff",
+			"title": "experience and levelling",
+			"description": "",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": []
+		},
+		{
+			"uuid": "66b3230c-fa4e-4f88-a4cd-2ed0c80656a1",
+			"title": "item collection",
+			"description": "",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": []
+		},
+		{
+			"uuid": "e9f31649-123f-4af8-88df-9c61a52ab470",
+			"title": "inventory",
+			"description": "",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": []
+		},
+		{
+			"uuid": "e0350452-e5f3-4cce-9be6-f8bf077c3e0e",
+			"title": "equipment and equipping",
+			"description": "",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": []
+		},
+		{
+			"uuid": "983faf93-a624-495d-a0b6-47b6428b4442",
+			"title": "combining items and item creation",
+			"description": "",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": []
+		},
+		{
+			"uuid": "a2b717b4-d6d3-4860-bca7-5cb2fd15bb6e",
+			"title": "ai-controlled character (companion)",
+			"description": "",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": []
+		},
+		{
+			"uuid": "506e8a1c-94cf-4b00-90c4-e4d403cfc963",
+			"title": "fairies",
+			"description": "",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": []
+		},
+		{
+			"uuid": "51a96ffc-eb4b-4547-a7dc-83a05db2ccea",
+			"title": "Add FPS counter",
+			"description": "",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": []
+		}
+	],
+	"layout": {
+		"columns": [
+			[
+				"ce0fbf89-95d3-435e-86b2-c0b76725c140"
+			],
+			[
+				"e2179ada-f7c4-493e-b2a9-c16a843d214d"
+			],
+			[
+				"3e5dea2a-dc95-43f3-a1d1-a46400572214"
+			]
+		]
+	}
+}

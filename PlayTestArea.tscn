@@ -1,0 +1,144 @@
+[gd_scene load_steps=14 format=3 uid="uid://dcnmv0ax5hal0"]
+
+[ext_resource type="Script" path="res://PlayTestArea.gd" id="1_3y566"]
+[ext_resource type="Texture2D" uid="uid://bl46w7pyeppcw" path="res://addons/kenney_prototype_textures/dark/texture_01.png" id="1_ul6ba"]
+[ext_resource type="Script" path="res://Player.gd" id="3_ppfwt"]
+[ext_resource type="Script" path="res://FPSLabel.gd" id="4_658dc"]
+[ext_resource type="Texture2D" uid="uid://bwwitdommt10m" path="res://addons/kenney_prototype_textures/red/texture_01.png" id="5_48ma0"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wm1vm"]
+sky_horizon_color = Color(0.64625, 0.6635, 0.6875, 1)
+ground_bottom_color = Color(0.2, 0.2, 0.2, 1)
+ground_horizon_color = Color(0.64625, 0.6635, 0.6875, 1)
+
+[sub_resource type="Sky" id="Sky_hq1fo"]
+sky_material = SubResource("ProceduralSkyMaterial_wm1vm")
+
+[sub_resource type="Environment" id="Environment_jk0t5"]
+background_mode = 2
+sky = SubResource("Sky_hq1fo")
+tonemap_mode = 2
+ssao_enabled = true
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xnqpq"]
+albedo_texture = ExtResource("1_ul6ba")
+uv1_scale = Vector3(0.5, 0.5, 0.5)
+uv1_triplanar = true
+texture_filter = 5
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_dwjm2"]
+radius = 0.25
+height = 1.7
+radial_segments = 16
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ogfds"]
+radius = 0.25
+height = 1.7
+
+[sub_resource type="LabelSettings" id="LabelSettings_4e1vv"]
+font_color = Color(1, 0, 0, 1)
+shadow_color = Color(0, 0, 0, 0.501961)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8cd8h"]
+albedo_texture = ExtResource("5_48ma0")
+uv1_scale = Vector3(0.5, 0.5, 0.5)
+uv1_triplanar = true
+texture_filter = 5
+
+[node name="PlayTestArea" type="Node3D"]
+script = ExtResource("1_3y566")
+
+[node name="Light" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_jk0t5")
+
+[node name="Floor" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+use_collision = true
+size = Vector3(100, 1, 100)
+material = SubResource("StandardMaterial3D_xnqpq")
+
+[node name="Camera" type="Camera3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 0.766044, 0.642788, 0, -0.642788, 0.766044, 0, 4, 4)
+
+[node name="Player" type="CharacterBody3D" parent="."]
+script = ExtResource("3_ppfwt")
+
+[node name="PlayerMesh" type="MeshInstance3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+mesh = SubResource("CapsuleMesh_dwjm2")
+
+[node name="PlayerCollision" type="CollisionShape3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+shape = SubResource("CapsuleShape3D_ogfds")
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="FPSLabel" type="Label" parent="UI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 23.0
+grow_horizontal = 0
+text = "FPS"
+label_settings = SubResource("LabelSettings_4e1vv")
+script = ExtResource("4_658dc")
+
+[node name="FPSTimer" type="Timer" parent="UI/FPSLabel"]
+wait_time = 0.25
+autostart = true
+
+[node name="Box1" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.85, 0)
+use_collision = true
+size = Vector3(1.7, 1.7, 1.7)
+material = SubResource("StandardMaterial3D_8cd8h")
+
+[node name="Box2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.68035, 2.51593, 0)
+use_collision = true
+size = Vector3(1.7, 1.7, 1.7)
+material = SubResource("StandardMaterial3D_8cd8h")
+
+[node name="Box3" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.36763, 4.23211, 0)
+use_collision = true
+size = Vector3(1.7, 1.7, 1.7)
+material = SubResource("StandardMaterial3D_8cd8h")
+
+[node name="Box4" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.0388, 5.95393, 0)
+use_collision = true
+size = Vector3(1.7, 1.7, 1.7)
+material = SubResource("StandardMaterial3D_8cd8h")
+
+[node name="Box5" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.7191, 7.61986, 0)
+use_collision = true
+size = Vector3(1.7, 1.7, 1.7)
+material = SubResource("StandardMaterial3D_8cd8h")
+
+[node name="Box6" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.4064, 9.33604, 0)
+use_collision = true
+size = Vector3(1.7, 1.7, 1.7)
+material = SubResource("StandardMaterial3D_8cd8h")
+
+[connection signal="timeout" from="UI/FPSLabel/FPSTimer" to="UI/FPSLabel" method="_on_fps_timer_timeout"]
