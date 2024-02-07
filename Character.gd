@@ -1,9 +1,10 @@
 extends CharacterBody3D
 
+enum CharacterType { NONE, PLAYER, ENEMY }
 enum DoubleJumpState { RESET, READY, DONE }
 
 #region exports
-@export var can_control: bool = false
+@export var character_type: CharacterType = CharacterType.NONE
 
 @export_group("Stats")
 @export_subgroup("HP")
@@ -59,7 +60,7 @@ enum DoubleJumpState { RESET, READY, DONE }
 @export var camera_lerp_speed: float = 5.0
 @export var camera_y_follow_distance: float = 2.0
 @export var camera_y_lerp_factor: float = 0.5
-#endregion
+#endregion exports
 
 var input_vec: Vector2 = Vector2.ZERO
 var double_jump_state: DoubleJumpState = DoubleJumpState.RESET
@@ -68,6 +69,7 @@ var camera_offset_pos: Vector3 = Vector3.ZERO
 var last_floor_y: float = 0.0
 
 @onready var gravity: float = ProjectSettings.get("physics/3d/default_gravity")
+# TODO: Remove one day, temporary for kill function lower down
 @onready var rigid_capsule_res: PackedScene = preload("res://RigidCapsule.tscn")
 
 func _ready() -> void:
@@ -77,7 +79,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	#region inputs
-	if can_control:
+	if character_type == CharacterType.PLAYER:
 		input_vec = Input.get_vector("left", "right", "up", "down")
 
 		if Input.is_action_just_pressed("jump") and stamina >= jump_stamina:
@@ -147,7 +149,7 @@ func _physics_process(delta: float) -> void:
 # TODO: Replace kill function with proper game-over one day
 func kill() -> void:
 	velocity = Vector3.ZERO
-	can_control = false
+	character_type = CharacterType.NONE
 	visible = false
 	gravity = 0.0
 	set_collision_mask_value(1, false)
@@ -167,23 +169,33 @@ func check_hp() -> void:
 	elif hp < 0.0:
 		hp = 0.0
 
-	hp_label.text = "HP: %.0f/%.0f" % [roundf(hp), roundf(max_hp)]
+	if hp_label:
+		hp_label.text = "HP: %.0f/%.0f" % [roundf(hp), roundf(max_hp)]
 
 	if hp == 0.0:
 		kill()
 
 func update_stamina_label() -> void:
-	stamina_label.text = "Stamina: %.1f/%.0f" % [stamina, roundf(max_stamina)]
-	stamina_label.text = stamina_label.text.replace(".0", "")
+	if stamina_label:
+		stamina_label.text = "Stamina: %.1f/%.0f" % [stamina, roundf(max_stamina)]
+		stamina_label.text = stamina_label.text.replace(".0", "")
 
 func update_stat_labels() -> void:
 	check_hp()
 	update_stamina_label()
-	str_label.text = "STR: %.0f" % roundf(strength)
-	def_label.text = "DEF: %.0f" % roundf(defence)
-	exp_label.text = "EXP: %.0f/%.0f" % [roundf(experience), roundf(next_exp)]
-	level_label.text = "Level: %d" % level
-#endregion
+
+	if str_label:
+		str_label.text = "STR: %.0f" % roundf(strength)
+
+	if def_label:
+		def_label.text = "DEF: %.0f" % roundf(defence)
+
+	if exp_label:
+		exp_label.text = "EXP: %.0f/%.0f" % [roundf(experience), roundf(next_exp)]
+
+	if level_label:
+		level_label.text = "Level: %d" % level
+#endregion stat functions
 
 func update_camera(delta: float) -> void:
 	if camera:
