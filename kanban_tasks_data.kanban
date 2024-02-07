@@ -14,7 +14,6 @@
 				"78cb8e58-dd5e-4314-b2eb-4d343c2d3a7b",
 				"dd046923-0203-4e97-bebe-399e7b8844cf",
 				"760b6b1f-1646-47e1-b83a-827e088f0e8b",
-				"0fd43be0-7958-47b6-9627-787294cb115a",
 				"962c7907-0f49-49e0-9c0c-d3ef8fe9ce02",
 				"6f89c9f2-9c44-4d26-967a-28d4c9c3b3ff",
 				"66b3230c-fa4e-4f88-a4cd-2ed0c80656a1",
@@ -29,7 +28,9 @@
 			"uuid": "e2179ada-f7c4-493e-b2a9-c16a843d214d",
 			"title": "Doing",
 			"tasks": [
-				"577615b8-2157-46ec-801b-843a4b19b7f7"
+				"577615b8-2157-46ec-801b-843a4b19b7f7",
+				"0fd43be0-7958-47b6-9627-787294cb115a",
+				"18ea1a90-483c-4272-bd11-2b690d6f2fd4"
 			]
 		},
 		{
@@ -312,6 +313,18 @@
 			"description": "",
 			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
 			"steps": []
+		},
+		{
+			"uuid": "18ea1a90-483c-4272-bd11-2b690d6f2fd4",
+			"title": "Fall damage",
+			"description": "Add player fall damage",
+			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
+			"steps": [
+				{
+					"details": "Add fall damage",
+					"done": false
+				}
+			]
 		}
 	],
 	"layout": {
