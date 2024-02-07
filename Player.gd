@@ -16,11 +16,12 @@ enum DoubleJumpState { RESET, READY, DONE }
 
 @export_group("Camera")
 @export var camera_lerp_speed: float = 5.0
-@export var camera_y_follow_distance: float = 4.0
+@export var camera_y_follow_distance: float = 2.0
 @export var camera_y_lerp_factor: float = 0.5
 
 var input_vec: Vector2 = Vector2.ZERO
 var double_jump_state: DoubleJumpState = DoubleJumpState.RESET
+var last_floor_y: float = 0.0
 
 @onready var gravity: float = ProjectSettings.get("physics/3d/default_gravity")
 @onready var camera: Camera3D = %Camera
@@ -64,5 +65,10 @@ func _physics_process(delta: float) -> void:
 	lerp_speed = camera_lerp_speed * delta
 	camera.position.x = lerpf(camera.position.x, position.x + camera_offset_pos.x, lerp_speed)
 	camera.position.z = lerpf(camera.position.z, position.z + camera_offset_pos.z, lerp_speed)
-	#camera_y_follow_distance
-	camera.position.y = lerpf(camera.position.y, position.y + camera_offset_pos.y, lerp_speed * camera_y_lerp_factor)
+
+	var cam_y_pos: float = camera.position.y - camera_offset_pos.y
+	var cam_y_diff: float = absf(cam_y_pos - position.y)
+	if is_on_floor() or cam_y_diff > camera_y_follow_distance or velocity.y < -jump_height:
+		last_floor_y = position.y
+
+	camera.position.y = lerpf(camera.position.y, last_floor_y + camera_offset_pos.y, lerp_speed * camera_y_lerp_factor)
