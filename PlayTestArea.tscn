@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bl46w7pyeppcw" path="res://addons/kenney_prototype_textures/dark/texture_01.png" id="1_ul6ba"]
 [ext_resource type="Script" path="res://Player.gd" id="3_ppfwt"]
 [ext_resource type="Script" path="res://FPSLabel.gd" id="4_658dc"]
+[ext_resource type="LabelSettings" uid="uid://d2onoweiwnk37" path="res://LabelSettings.tres" id="4_jerlc"]
 [ext_resource type="Texture2D" uid="uid://bwwitdommt10m" path="res://addons/kenney_prototype_textures/red/texture_01.png" id="5_48ma0"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wm1vm"]
@@ -40,9 +41,6 @@ height = 1.7
 font_color = Color(1, 0, 0, 1)
 shadow_color = Color(0, 0, 0, 0.501961)
 
-[sub_resource type="LabelSettings" id="LabelSettings_qmq6y"]
-shadow_color = Color(0, 0, 0, 0.501961)
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8cd8h"]
 albedo_texture = ExtResource("5_48ma0")
 uv1_scale = Vector3(0.5, 0.5, 0.5)
@@ -68,8 +66,14 @@ material = SubResource("StandardMaterial3D_xnqpq")
 [node name="Camera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.766044, 0.642788, 0, -0.642788, 0.766044, 0, 4, 4)
 
-[node name="Player" type="CharacterBody3D" parent="." node_paths=PackedStringArray("camera")]
+[node name="Player" type="CharacterBody3D" parent="." node_paths=PackedStringArray("hp_label", "stamina_label", "str_label", "def_label", "exp_label", "level_label", "camera")]
 script = ExtResource("3_ppfwt")
+hp_label = NodePath("../UI/StatLabels/HPLabel")
+stamina_label = NodePath("../UI/StatLabels/StaminaLabel")
+str_label = NodePath("../UI/StatLabels/StrLabel")
+def_label = NodePath("../UI/StatLabels/DefLabel")
+exp_label = NodePath("../UI/StatLabels/ExpLabel")
+level_label = NodePath("../UI/StatLabels/LevelLabel")
 camera = NodePath("../Camera")
 
 [node name="PlayerMesh" type="MeshInstance3D" parent="Player"]
@@ -91,6 +95,41 @@ offset_right = -10.0
 offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="StatLabels" type="VBoxContainer" parent="UI"]
+layout_mode = 1
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="HPLabel" type="Label" parent="UI/StatLabels"]
+layout_mode = 2
+text = "HP"
+label_settings = ExtResource("4_jerlc")
+
+[node name="StaminaLabel" type="Label" parent="UI/StatLabels"]
+layout_mode = 2
+text = "Stamina"
+label_settings = ExtResource("4_jerlc")
+
+[node name="StrLabel" type="Label" parent="UI/StatLabels"]
+layout_mode = 2
+text = "STR"
+label_settings = ExtResource("4_jerlc")
+
+[node name="DefLabel" type="Label" parent="UI/StatLabels"]
+layout_mode = 2
+text = "DEF"
+label_settings = ExtResource("4_jerlc")
+
+[node name="ExpLabel" type="Label" parent="UI/StatLabels"]
+layout_mode = 2
+text = "EXP"
+label_settings = ExtResource("4_jerlc")
+
+[node name="LevelLabel" type="Label" parent="UI/StatLabels"]
+layout_mode = 2
+text = "Level"
+label_settings = ExtResource("4_jerlc")
 
 [node name="FPSLabel" type="Label" parent="UI"]
 layout_mode = 1
@@ -120,7 +159,7 @@ text = "Movement: Arrow keys/WSAD
 Jump: Ctrl/Space (can double-jump)
 Dodge: Shift
 Quit: Escape"
-label_settings = SubResource("LabelSettings_qmq6y")
+label_settings = ExtResource("4_jerlc")
 
 [node name="Box1" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.85, 0)

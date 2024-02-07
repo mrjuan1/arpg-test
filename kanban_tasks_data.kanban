@@ -28,7 +28,6 @@
 			"uuid": "e2179ada-f7c4-493e-b2a9-c16a843d214d",
 			"title": "Doing",
 			"tasks": [
-				"577615b8-2157-46ec-801b-843a4b19b7f7",
 				"0fd43be0-7958-47b6-9627-787294cb115a",
 				"18ea1a90-483c-4272-bd11-2b690d6f2fd4"
 			]
@@ -41,7 +40,8 @@
 				"e7e2deba-9b7a-4983-a055-922ee4b2b052",
 				"51a96ffc-eb4b-4547-a7dc-83a05db2ccea",
 				"55c33b7b-a1d2-4d8c-9348-9161bb2e0637",
-				"58de9f0d-e99e-4b92-9130-f87490dd43e3"
+				"58de9f0d-e99e-4b92-9130-f87490dd43e3",
+				"577615b8-2157-46ec-801b-843a4b19b7f7"
 			]
 		}
 	],
@@ -131,18 +131,30 @@
 				{
 					"details": "Add double-jumping",
 					"done": true
+				},
+				{
+					"details": "Have jumping use stamina",
+					"done": true
+				},
+				{
+					"details": "Double-jumping to use more stamina",
+					"done": true
 				}
 			]
 		},
 		{
 			"uuid": "577615b8-2157-46ec-801b-843a4b19b7f7",
-			"title": "Dodging (update task)",
-			"description": "Allow player to dodge in a specific direction (will need to consider player stamina to avoid this being abused for faster movement)",
+			"title": "Dodging",
+			"description": "Allow player to dodge in a specific direction. Dodging will use a large amount of stamina.",
 			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
 			"steps": [
 				{
 					"details": "Add player dodging",
-					"done": false
+					"done": true
+				},
+				{
+					"details": "Have dodging use stamina",
+					"done": true
 				}
 			]
 		},
@@ -202,15 +214,19 @@
 			"steps": [
 				{
 					"details": "Add HP",
-					"done": false
+					"done": true
 				},
 				{
 					"details": "Add event for HP reaching 0",
 					"done": false
 				},
 				{
+					"details": "Add stamina",
+					"done": true
+				},
+				{
 					"details": "Add str and def",
-					"done": false
+					"done": true
 				},
 				{
 					"details": "Add variable amount of magic capacities",
