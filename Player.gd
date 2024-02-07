@@ -2,6 +2,9 @@ extends CharacterBody3D
 
 enum DoubleJumpState { RESET, READY, DONE }
 
+#region exports
+@export var can_control: bool = false
+
 @export_group("Stats")
 @export_subgroup("HP")
 @export var hp: float = 5.0
@@ -46,18 +49,26 @@ enum DoubleJumpState { RESET, READY, DONE }
 @export_subgroup("Stats")
 @export var dodge_stamina: float = 2.0
 
+@export_group("Fall damage")
+@export var fall_damage_velocity: float = -15.0
+@export var fall_damage_divisor: float = 20.0
+@export var fall_damage_threshold: float = -0.5
+
 @export_group("Camera")
 @export var camera: Camera3D
 @export var camera_lerp_speed: float = 5.0
 @export var camera_y_follow_distance: float = 2.0
 @export var camera_y_lerp_factor: float = 0.5
+#endregion
 
 var input_vec: Vector2 = Vector2.ZERO
 var double_jump_state: DoubleJumpState = DoubleJumpState.RESET
+var last_y_velocity: float = 0.0
 var camera_offset_pos: Vector3 = Vector3.ZERO
 var last_floor_y: float = 0.0
 
 @onready var gravity: float = ProjectSettings.get("physics/3d/default_gravity")
+@onready var rigid_capsule_res: PackedScene = preload("res://RigidCapsule.tscn")
 
 func _ready() -> void:
 	update_stat_labels()
@@ -65,28 +76,31 @@ func _ready() -> void:
 		camera_offset_pos = camera.position
 
 func _process(delta: float) -> void:
-	input_vec = Input.get_vector("left", "right", "up", "down")
+	#region inputs
+	if can_control:
+		input_vec = Input.get_vector("left", "right", "up", "down")
 
-	if Input.is_action_just_pressed("jump") and stamina >= jump_stamina:
-		if is_on_floor():
-			velocity.y = jump_height
-			stamina -= jump_stamina
-		elif double_jump_state == DoubleJumpState.READY and stamina >= double_jump_stamina:
-			velocity.y = jump_height * double_jump_reduction_factor
-			double_jump_state = DoubleJumpState.DONE
-			stamina -= double_jump_stamina
-		update_stamina_label()
-	elif Input.is_action_just_pressed("dodge") and stamina >= dodge_stamina:
-		var increased_speed: float = movement_speed + 1.0
-		if absf(velocity.x) < increased_speed and absf(velocity.z) < increased_speed:
+		if Input.is_action_just_pressed("jump") and stamina >= jump_stamina:
 			if is_on_floor():
-				velocity.x *= dodge_floor_speed
-				velocity.z *= dodge_floor_speed
-			else:
-				velocity.x *= dodge_air_speed
-				velocity.z *= dodge_air_speed
-			stamina -= dodge_stamina
+				velocity.y = jump_height
+				stamina -= jump_stamina
+			elif double_jump_state == DoubleJumpState.READY and stamina >= double_jump_stamina:
+				velocity.y = jump_height * double_jump_reduction_factor
+				double_jump_state = DoubleJumpState.DONE
+				stamina -= double_jump_stamina
 			update_stamina_label()
+		elif Input.is_action_just_pressed("dodge") and stamina >= dodge_stamina:
+			var increased_speed: float = movement_speed + 1.0
+			if absf(velocity.x) < increased_speed and absf(velocity.z) < increased_speed:
+				if is_on_floor():
+					velocity.x *= dodge_floor_speed
+					velocity.z *= dodge_floor_speed
+				else:
+					velocity.x *= dodge_air_speed
+					velocity.z *= dodge_air_speed
+				stamina -= dodge_stamina
+				update_stamina_label()
+	#endregion inputs
 
 	if stamina < max_stamina:
 		stamina += stamina_refill_rate * delta
@@ -99,6 +113,14 @@ func _physics_process(delta: float) -> void:
 
 	if is_on_floor():
 		double_jump_state = DoubleJumpState.RESET
+		if last_y_velocity != 0.0:
+			if last_y_velocity < fall_damage_velocity:
+				var damage: float = last_y_velocity / fall_damage_divisor
+				if damage < fall_damage_threshold:
+					damage = floorf(damage)
+					hp += damage
+					check_hp()
+			last_y_velocity = 0.0
 	else:
 		lerp_speed *= air_movement_dampening
 		velocity.y -= gravity * gravity_multiplier * delta
@@ -117,20 +139,51 @@ func _physics_process(delta: float) -> void:
 	if position.y < reset_at_y:
 		position = Vector3.ZERO
 
+	last_y_velocity = velocity.y
 	move_and_slide()
+
 	update_camera(delta)
+
+# TODO: Replace kill function with proper game-over one day
+func kill() -> void:
+	velocity = Vector3.ZERO
+	can_control = false
+	visible = false
+	gravity = 0.0
+	set_collision_mask_value(1, false)
+	set_collision_layer_value(1, false)
+
+	var rigid_capsule: RigidBody3D = rigid_capsule_res.instantiate()
+	rigid_capsule.position = position
+	rigid_capsule.position.y += 1.7 / 2.0
+	rigid_capsule.linear_velocity.y = randf_range(2.0, 6.0)
+	rigid_capsule.angular_velocity = Vector3(randf_range(0.0, TAU), randf_range(0.0, TAU), randf_range(0.0, TAU))
+	get_parent_node_3d().add_child(rigid_capsule)
+
+#region stat functions
+func check_hp() -> void:
+	if hp > max_hp:
+		hp = max_hp
+	elif hp < 0.0:
+		hp = 0.0
+
+	hp_label.text = "HP: %.0f/%.0f" % [roundf(hp), roundf(max_hp)]
+
+	if hp == 0.0:
+		kill()
 
 func update_stamina_label() -> void:
 	stamina_label.text = "Stamina: %.1f/%.0f" % [stamina, roundf(max_stamina)]
 	stamina_label.text = stamina_label.text.replace(".0", "")
 
 func update_stat_labels() -> void:
-	hp_label.text = "HP: %.0f/%.0f" % [roundf(hp), roundf(max_hp)]
+	check_hp()
 	update_stamina_label()
 	str_label.text = "STR: %.0f" % roundf(strength)
 	def_label.text = "DEF: %.0f" % roundf(defence)
 	exp_label.text = "EXP: %.0f/%.0f" % [roundf(experience), roundf(next_exp)]
 	level_label.text = "Level: %d" % level
+#endregion
 
 func update_camera(delta: float) -> void:
 	if camera:

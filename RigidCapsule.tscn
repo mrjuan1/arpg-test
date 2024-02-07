@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://bal7lrfmu07jx"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ega31"]
+radius = 0.25
+height = 1.7
+radial_segments = 16
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_nn5uc"]
+radius = 0.25
+height = 1.7
+
+[node name="RigidCapsule" type="RigidBody3D"]
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_ega31")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_nn5uc")

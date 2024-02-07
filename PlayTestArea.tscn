@@ -68,6 +68,7 @@ transform = Transform3D(1, 0, 0, 0, 0.766044, 0.642788, 0, -0.642788, 0.766044, 
 
 [node name="Player" type="CharacterBody3D" parent="." node_paths=PackedStringArray("hp_label", "stamina_label", "str_label", "def_label", "exp_label", "level_label", "camera")]
 script = ExtResource("3_ppfwt")
+can_control = true
 hp_label = NodePath("../UI/StatLabels/HPLabel")
 stamina_label = NodePath("../UI/StatLabels/StaminaLabel")
 str_label = NodePath("../UI/StatLabels/StrLabel")

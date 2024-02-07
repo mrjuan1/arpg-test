@@ -14,7 +14,6 @@
 				"78cb8e58-dd5e-4314-b2eb-4d343c2d3a7b",
 				"dd046923-0203-4e97-bebe-399e7b8844cf",
 				"760b6b1f-1646-47e1-b83a-827e088f0e8b",
-				"962c7907-0f49-49e0-9c0c-d3ef8fe9ce02",
 				"6f89c9f2-9c44-4d26-967a-28d4c9c3b3ff",
 				"66b3230c-fa4e-4f88-a4cd-2ed0c80656a1",
 				"e9f31649-123f-4af8-88df-9c61a52ab470",
@@ -29,7 +28,7 @@
 			"title": "Doing",
 			"tasks": [
 				"0fd43be0-7958-47b6-9627-787294cb115a",
-				"18ea1a90-483c-4272-bd11-2b690d6f2fd4"
+				"962c7907-0f49-49e0-9c0c-d3ef8fe9ce02"
 			]
 		},
 		{
@@ -41,7 +40,8 @@
 				"51a96ffc-eb4b-4547-a7dc-83a05db2ccea",
 				"55c33b7b-a1d2-4d8c-9348-9161bb2e0637",
 				"58de9f0d-e99e-4b92-9130-f87490dd43e3",
-				"577615b8-2157-46ec-801b-843a4b19b7f7"
+				"577615b8-2157-46ec-801b-843a4b19b7f7",
+				"18ea1a90-483c-4272-bd11-2b690d6f2fd4"
 			]
 		}
 	],
@@ -217,8 +217,8 @@
 					"done": true
 				},
 				{
-					"details": "Add event for HP reaching 0",
-					"done": false
+					"details": "Add event for HP reaching 0\n\nAdded, but not an event, just an if-statement.",
+					"done": true
 				},
 				{
 					"details": "Add stamina",
@@ -326,7 +326,7 @@
 		{
 			"uuid": "51a96ffc-eb4b-4547-a7dc-83a05db2ccea",
 			"title": "Add FPS counter",
-			"description": "",
+			"description": "Borked in Wayland, showing 1500+ FPS when running at around 45",
 			"category": "cba3fcff-04e0-4a55-9da5-55f015131307",
 			"steps": []
 		},
@@ -338,7 +338,7 @@
 			"steps": [
 				{
 					"details": "Add fall damage",
-					"done": false
+					"done": true
 				}
 			]
 		}
