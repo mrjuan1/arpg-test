@@ -2,6 +2,7 @@ extends CharacterBody3D
 
 enum CharacterType { NONE, PLAYER, ENEMY }
 enum DoubleJumpState { RESET, READY, DONE }
+enum BehaviourAction { NONE = 0, MOVE = 1, PURSUE = 2 }
 
 #region exports
 @export var character_type: CharacterType = CharacterType.NONE
@@ -21,6 +22,9 @@ enum DoubleJumpState { RESET, READY, DONE }
 @export var experience: float = 0.0
 @export var next_exp: float = 100.0
 @export var level: int = 1
+@export_subgroup("Stats FX")
+@export var mesh: MeshInstance3D
+@export var albedo_lerp_speed: float = 5.0
 @export_subgroup("Stats UI")
 @export var hp_label: Label
 @export var stamina_label: Label
@@ -32,8 +36,10 @@ enum DoubleJumpState { RESET, READY, DONE }
 @export_group("Movement")
 @export var movement_speed: float = 5.0
 @export var movement_lerp_speed: float = 10.0
+@export var rotation_lerp_speed: float = 10.0
 @export var gravity_multiplier: float = 2.0
 @export var air_movement_dampening: float = 0.1
+@export var air_rotation_dampening: float = 0.5
 @export var reset_at_y: float = -50.0
 
 @export_group("Jumping")
@@ -60,15 +66,29 @@ enum DoubleJumpState { RESET, READY, DONE }
 @export var camera_lerp_speed: float = 5.0
 @export var camera_y_follow_distance: float = 2.0
 @export var camera_y_lerp_factor: float = 0.5
+
+@export_group("Behaviour (non-player)")
+@export var behaviour_timer: Timer
+@export var detection_area: Area3D
 #endregion exports
+
+const HALF_PI: float = PI / 2.0
+const MIN_DODGE_VELOCITY: float = 0.1
+const MAX_DODGE_VELOCITY_OFFSET: float = 1.0
 
 var input_vec: Vector2 = Vector2.ZERO
 var double_jump_state: DoubleJumpState = DoubleJumpState.RESET
 var last_y_velocity: float = 0.0
 var camera_offset_pos: Vector3 = Vector3.ZERO
 var last_floor_y: float = 0.0
+var behaviour_action: BehaviourAction = BehaviourAction.NONE
+
+var target_character: CharacterBody3D
 
 @onready var gravity: float = ProjectSettings.get("physics/3d/default_gravity")
+@onready var target_y_rotation: float = rotation.y
+@onready var material: StandardMaterial3D = (mesh.mesh as PrimitiveMesh).material
+@onready var original_albedo: Color = material.albedo_color
 # TODO: Remove one day, temporary for kill function lower down
 @onready var rigid_capsule_res: PackedScene = preload("res://RigidCapsule.tscn")
 
@@ -77,10 +97,22 @@ func _ready() -> void:
 	if camera:
 		camera_offset_pos = camera.position
 
+	if character_type != CharacterType.PLAYER:
+		behaviour_action = randi_range(0, 1) as BehaviourAction
+		if behaviour_timer:
+			behaviour_timer.wait_time = randf_range(2.0, 4.0)
+			behaviour_timer.connect("timeout", _on_behaviour_timer_timeout)
+			behaviour_timer.start()
+
+		if detection_area:
+			detection_area.connect("body_entered", _on_detection_area_body_entered)
+
 func _process(delta: float) -> void:
 	#region inputs
 	if character_type == CharacterType.PLAYER:
 		input_vec = Input.get_vector("left", "right", "up", "down")
+		if input_vec:
+			target_y_rotation = -input_vec.angle() + HALF_PI
 
 		if Input.is_action_just_pressed("jump") and stamina >= jump_stamina:
 			if is_on_floor():
@@ -92,17 +124,35 @@ func _process(delta: float) -> void:
 				stamina -= double_jump_stamina
 			update_stamina_label()
 		elif Input.is_action_just_pressed("dodge") and stamina >= dodge_stamina:
-			var increased_speed: float = movement_speed + 1.0
-			if absf(velocity.x) < increased_speed and absf(velocity.z) < increased_speed:
+			var abs_vel_x: float = absf(velocity.x)
+			var abs_vel_z: float = absf(velocity.z)
+			var increased_speed: float = movement_speed + MAX_DODGE_VELOCITY_OFFSET
+			if (abs_vel_x > MIN_DODGE_VELOCITY and abs_vel_x < increased_speed) or (abs_vel_z > MIN_DODGE_VELOCITY and abs_vel_z < increased_speed):
 				if is_on_floor():
 					velocity.x *= dodge_floor_speed
 					velocity.z *= dodge_floor_speed
 				else:
 					velocity.x *= dodge_air_speed
 					velocity.z *= dodge_air_speed
+					velocity.y = 0.0
 				stamina -= dodge_stamina
 				update_stamina_label()
 	#endregion inputs
+	else:
+		if target_character and behaviour_action != BehaviourAction.PURSUE:
+			var target_velocity: Vector3 = target_character.velocity.abs()
+			target_velocity.y = 0.0
+			if target_velocity > Vector3(0.1, 0.1, 0.1):
+				behaviour_timer.stop()
+				behaviour_action = BehaviourAction.PURSUE
+				input_vec = Vector2.ZERO
+				print("detected!")
+
+		match behaviour_action:
+			BehaviourAction.NONE:
+				input_vec = Vector2.ZERO
+			BehaviourAction.MOVE:
+				input_vec = Vector2.from_angle(-target_y_rotation + HALF_PI)
 
 	if stamina < max_stamina:
 		stamina += stamina_refill_rate * delta
@@ -111,7 +161,8 @@ func _process(delta: float) -> void:
 		update_stamina_label()
 
 func _physics_process(delta: float) -> void:
-	var lerp_speed: float = movement_lerp_speed * delta
+	var mov_lerp_speed: float = movement_lerp_speed * delta
+	var rot_lerp_speed: float = rotation_lerp_speed * delta
 
 	if is_on_floor():
 		double_jump_state = DoubleJumpState.RESET
@@ -120,31 +171,55 @@ func _physics_process(delta: float) -> void:
 				var damage: float = last_y_velocity / fall_damage_divisor
 				if damage < fall_damage_threshold:
 					damage = floorf(damage)
-					hp += damage
-					check_hp()
+					change_hp(damage)
 			last_y_velocity = 0.0
 	else:
-		lerp_speed *= air_movement_dampening
+		mov_lerp_speed *= air_movement_dampening
+		rot_lerp_speed *= air_rotation_dampening
+
 		velocity.y -= gravity * gravity_multiplier * delta
 		if double_jump_state == DoubleJumpState.RESET and absf(velocity.y) < velocity_for_double_jump:
 			double_jump_state = DoubleJumpState.READY
 
+	rotation.y = lerp_angle(rotation.y, target_y_rotation, rot_lerp_speed)
+
 	if input_vec:
-		var input_dir: Vector3 = Vector3(input_vec.x, 0.0, input_vec.y)
-		var movement: Vector3 = (transform.basis * input_dir).normalized() * movement_speed
-		velocity.x = lerpf(velocity.x, movement.x, lerp_speed)
-		velocity.z = lerpf(velocity.z, movement.z, lerp_speed)
+		var movement: Vector2 = input_vec * movement_speed
+		velocity.x = lerpf(velocity.x, movement.x, mov_lerp_speed)
+		velocity.z = lerpf(velocity.z, movement.y, mov_lerp_speed)
 	else:
-		velocity.x = lerpf(velocity.x, 0.0, lerp_speed)
-		velocity.z = lerpf(velocity.z, 0.0, lerp_speed)
+		velocity.x = lerpf(velocity.x, 0.0, mov_lerp_speed)
+		velocity.z = lerpf(velocity.z, 0.0, mov_lerp_speed)
 
 	if position.y < reset_at_y:
 		position = Vector3.ZERO
-
 	last_y_velocity = velocity.y
-	move_and_slide()
 
+	material.albedo_color = lerp(material.albedo_color, original_albedo, albedo_lerp_speed * delta)
+
+	move_and_slide()
 	update_camera(delta)
+
+func _on_behaviour_timer_timeout() -> void:
+	var last_action: BehaviourAction = behaviour_action
+	while behaviour_action == last_action:
+		behaviour_action = randi_range(0, 1) as BehaviourAction
+
+	match behaviour_action:
+		BehaviourAction.NONE:
+			pass
+		BehaviourAction.MOVE:
+			target_y_rotation = randf_range(0.0, TAU)
+
+	behaviour_timer.wait_time = randf_range(2.0, 4.0)
+
+func _on_detection_area_body_entered(body: Node3D) -> void:
+	if character_type == CharacterType.ENEMY and not target_character:
+		var chartype_prop: Variant = body.get("character_type")
+		if chartype_prop:
+			var char_type: CharacterType = chartype_prop
+			if char_type == CharacterType.PLAYER:
+				target_character = body
 
 # TODO: Replace kill function with proper game-over one day
 func kill() -> void:
@@ -163,6 +238,14 @@ func kill() -> void:
 	get_parent_node_3d().add_child(rigid_capsule)
 
 #region stat functions
+func change_hp(amount: float) -> void:
+	var last_hp: float = hp
+	hp += amount
+	check_hp()
+
+	if hp < last_hp:
+		material.albedo_color = Color(1.0, 0.0, 0.0)
+
 func check_hp() -> void:
 	if hp > max_hp:
 		hp = max_hp
