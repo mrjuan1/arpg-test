@@ -22,7 +22,7 @@ enum BehaviourAction {
 @export var max_stamina: float = 3.0
 @export var stamina_refill_rate: float = 2.0
 @export_subgroup("Combat")
-@export var strength: float = 1.0
+@export var strength: float = 2.0
 @export var defence: float = 1.0
 @export_subgroup("EXP")
 @export var experience: float = 0.0
@@ -77,6 +77,7 @@ enum BehaviourAction {
 @export var behaviour_timer: Timer
 @export var detection_area: Area3D
 @export var navigation_agent: NavigationAgent3D
+@export var ray: RayCast3D
 #endregion exports
 
 #region variables
@@ -92,6 +93,8 @@ var camera_offset_pos: Vector3 = Vector3.ZERO
 var last_floor_y: float = 0.0
 var behaviour_action: BehaviourAction = BehaviourAction.NONE
 var target_last_position: Vector3 = Vector3.ZERO
+var attack_velocity: Vector3 = Vector3.ZERO
+var has_attacked: bool = false
 
 var target_character: CharacterBody3D
 var detection_debug_material: StandardMaterial3D
@@ -130,7 +133,10 @@ func _ready() -> void:
 					detection_debug_material = detection_mesh.material
 					detection_debug_target_colour = detection_debug_material.albedo_color
 
-		set_detection_debug_colour()
+			set_detection_debug_colour()
+
+		if navigation_agent:
+			navigation_agent.connect("target_reached", _on_navigation_agent_target_reached)
 
 func _process(delta: float) -> void:
 	#region inputs
@@ -181,6 +187,18 @@ func _process(delta: float) -> void:
 				input_vec = Vector2.from_angle(-target_y_rotation + HALF_PI)
 			BehaviourAction.PURSUE:
 				pursue_target()
+			BehaviourAction.PREPARE_ATTACK:
+				# TODO: Export prepare attack velocity reverse factor
+				input_vec = -Vector2(attack_velocity.x, attack_velocity.z) * 0.5
+			BehaviourAction.PERFORM_ATTACK:
+				if not has_attacked and ray and ray.is_colliding():
+					var chartype_prop: Variant = ray.get_collider().get("character_type")
+					var char_type: CharacterType = chartype_prop
+					if char_type == CharacterType.PLAYER:
+						var damage: float = strength - target_character.defence
+						if damage > 0.0:
+							target_character.change_hp(-damage)
+							has_attacked = true
 
 	if stamina < max_stamina:
 		stamina += stamina_refill_rate * delta
@@ -232,15 +250,33 @@ func _physics_process(delta: float) -> void:
 	update_camera(delta)
 
 func _on_behaviour_timer_timeout() -> void:
-	var last_action: BehaviourAction = behaviour_action
-	while behaviour_action == last_action:
-		behaviour_action = randi_range(BehaviourAction.NONE, BehaviourAction.MOVE) as BehaviourAction
+	if behaviour_action < BehaviourAction.PURSUE:
+		var last_action: BehaviourAction = behaviour_action
+		while behaviour_action == last_action:
+			behaviour_action = randi_range(BehaviourAction.NONE, BehaviourAction.MOVE) as BehaviourAction
 
-	if behaviour_action == BehaviourAction.MOVE:
-		target_y_rotation = randf_range(0.0, TAU)
+		if behaviour_action == BehaviourAction.MOVE:
+			target_y_rotation = randf_range(0.0, TAU)
 
-	# TODO: Integrate exported wait range here too
-	behaviour_timer.wait_time = randf_range(2.0, 4.0)
+		# TODO: Integrate exported wait range here too
+		behaviour_timer.wait_time = randf_range(2.0, 4.0)
+	elif behaviour_action == BehaviourAction.PREPARE_ATTACK:
+		# TODO: Export attack lunge speed?
+		velocity = attack_velocity * 20.0
+		behaviour_action = BehaviourAction.PERFORM_ATTACK
+	elif behaviour_action == BehaviourAction.PERFORM_ATTACK:
+		if target_character:
+			var last_rotation: Vector3 = rotation
+			look_at(target_character.position)
+			target_y_rotation = rotation.y + PI
+			rotation = last_rotation
+			attack_velocity = (target_character.position - position).normalized()
+			attack_velocity.y = 0.0
+			behaviour_action = BehaviourAction.PREPARE_ATTACK
+		else:
+			# TODO: Change to observe behaviour and wait a bit once implemented
+			behaviour_action = BehaviourAction.NONE
+		has_attacked = false
 
 	set_detection_debug_colour()
 
@@ -255,6 +291,23 @@ func _on_detection_area_body_entered(body: Node3D) -> void:
 func _on_detection_area_body_exited(_body: Node3D) -> void:
 	if character_type == CharacterType.ENEMY and target_character:
 		target_character = null
+
+func _on_navigation_agent_target_reached() -> void:
+	input_vec = Vector2.ZERO
+	target_last_position = Vector3.ZERO
+
+	if target_character and behaviour_action == BehaviourAction.PURSUE:
+		behaviour_action = BehaviourAction.PREPARE_ATTACK
+		attack_velocity = (target_character.position - position).normalized()
+		attack_velocity.y = 0.0
+		# TODO: Export prepare attack time
+		behaviour_timer.wait_time = 0.5
+	else:
+		# TODO: Change to observe behaviour and wait a bit once implemented
+		behaviour_action = BehaviourAction.NONE
+	behaviour_timer.start()
+
+	set_detection_debug_colour()
 
 # TODO: Replace kill function with proper game-over one day
 func kill() -> void:
@@ -334,25 +387,13 @@ func pursue_target() -> void:
 		target_last_position = target_character.position
 
 	if target_last_position:
-		# TODO: Move out max distance to export
-		if position.distance_squared_to(target_last_position) > 1.0:
-			navigation_agent.target_position = target_last_position
-			var next_pos: Vector3 = navigation_agent.get_next_path_position()
-			var last_rotation: Vector3 = rotation
-			look_at(next_pos)
-			target_y_rotation = rotation.y + PI
-			rotation = last_rotation
-			input_vec = Vector2.from_angle(-target_y_rotation + HALF_PI).normalized()
-		else:
-			input_vec = Vector2.ZERO
-			target_last_position = Vector3.ZERO
-			if target_character and behaviour_action == BehaviourAction.PURSUE:
-				behaviour_action = BehaviourAction.PREPARE_ATTACK
-			else:
-				behaviour_action = BehaviourAction.NONE
-				behaviour_timer.start()
-
-			set_detection_debug_colour()
+		navigation_agent.target_position = target_last_position
+		var next_pos: Vector3 = navigation_agent.get_next_path_position()
+		var last_rotation: Vector3 = rotation
+		look_at(next_pos)
+		target_y_rotation = rotation.y + PI
+		rotation = last_rotation
+		input_vec = Vector2.from_angle(-target_y_rotation + HALF_PI).normalized()
 
 func set_detection_debug_colour() -> void:
 	if detection_debug_material:

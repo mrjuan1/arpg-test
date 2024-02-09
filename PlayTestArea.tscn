@@ -141,7 +141,7 @@ mesh = SubResource("CapsuleMesh_u8l5o")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
 shape = SubResource("CapsuleShape3D_ogfds")
 
-[node name="Enemy" type="CharacterBody3D" parent="." node_paths=PackedStringArray("mesh", "behaviour_timer", "detection_area", "navigation_agent")]
+[node name="Enemy" type="CharacterBody3D" parent="." node_paths=PackedStringArray("mesh", "behaviour_timer", "detection_area", "navigation_agent", "ray")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
 script = ExtResource("3_ppfwt")
 character_type = 2
@@ -150,7 +150,8 @@ movement_speed = 2.0
 rotation_lerp_speed = 5.0
 behaviour_timer = NodePath("BehaviourTimer")
 detection_area = NodePath("DetectionArea")
-navigation_agent = NodePath("NavigationAgent1")
+navigation_agent = NodePath("NavigationAgent")
+ray = NodePath("Ray")
 
 [node name="EnemyMesh" type="MeshInstance3D" parent="Enemy"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
@@ -177,11 +178,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.8, 0)
 cast_shadow = 0
 mesh = SubResource("SphereMesh_wltcq")
 
-[node name="NavigationAgent1" type="NavigationAgent3D" parent="Enemy"]
+[node name="NavigationAgent" type="NavigationAgent3D" parent="Enemy"]
 avoidance_enabled = true
 height = 1.7
 
-[node name="Enemy2" type="CharacterBody3D" parent="." node_paths=PackedStringArray("mesh", "behaviour_timer", "detection_area", "navigation_agent")]
+[node name="Ray" type="RayCast3D" parent="Enemy"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+target_position = Vector3(0, 0, 1)
+
+[node name="Enemy2" type="CharacterBody3D" parent="." node_paths=PackedStringArray("mesh", "behaviour_timer", "detection_area", "navigation_agent", "ray")]
 transform = Transform3D(-0.781706, 0, -0.623648, 0, 1, 0, 0.623648, 0, -0.781706, -4, 0, -3.146)
 script = ExtResource("3_ppfwt")
 character_type = 2
@@ -191,6 +196,7 @@ rotation_lerp_speed = 5.0
 behaviour_timer = NodePath("BehaviourTimer")
 detection_area = NodePath("DetectionArea2")
 navigation_agent = NodePath("NavigationAgent2")
+ray = NodePath("Ray2")
 
 [node name="EnemyMesh" type="MeshInstance3D" parent="Enemy2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
@@ -220,6 +226,10 @@ mesh = SubResource("SphereMesh_w6sno")
 [node name="NavigationAgent2" type="NavigationAgent3D" parent="Enemy2"]
 avoidance_enabled = true
 height = 1.7
+
+[node name="Ray2" type="RayCast3D" parent="Enemy2"]
+transform = Transform3D(0.999999, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0.85, 0)
+target_position = Vector3(0, 0, 1)
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
