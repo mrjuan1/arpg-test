@@ -27,8 +27,8 @@
 			"uuid": "e2179ada-f7c4-493e-b2a9-c16a843d214d",
 			"title": "Doing",
 			"tasks": [
-				"0fd43be0-7958-47b6-9627-787294cb115a",
-				"962c7907-0f49-49e0-9c0c-d3ef8fe9ce02"
+				"962c7907-0f49-49e0-9c0c-d3ef8fe9ce02",
+				"0fd43be0-7958-47b6-9627-787294cb115a"
 			]
 		},
 		{
@@ -246,30 +246,34 @@
 			"steps": [
 				{
 					"details": "Add enemy character from player charatcer's build",
-					"done": false
+					"done": true
 				},
 				{
 					"details": "Add enemy idle behaviour",
-					"done": false
+					"done": true
 				},
 				{
 					"details": "Add enemy character detection\n\nRemember, this is movement from a certain distance, line of sight, or being attacked.",
-					"done": false
+					"done": true
 				},
 				{
 					"details": "Add character pursuing",
-					"done": false
+					"done": true
 				},
 				{
 					"details": "Allow enemy to lose target and return to idle",
-					"done": false
+					"done": true
 				},
 				{
-					"details": "Add enemy attacking",
+					"details": "Add adjustable line-of-sight",
 					"done": false
 				},
 				{
 					"details": "Add enemy target-switching",
+					"done": false
+				},
+				{
+					"details": "Add enemy attacking",
 					"done": false
 				}
 			]

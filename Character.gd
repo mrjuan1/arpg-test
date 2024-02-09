@@ -2,7 +2,13 @@ extends CharacterBody3D
 
 enum CharacterType { NONE, PLAYER, ENEMY }
 enum DoubleJumpState { RESET, READY, DONE }
-enum BehaviourAction { NONE = 0, MOVE = 1, PURSUE = 2 }
+enum BehaviourAction {
+	NONE = 0,
+	MOVE = 1,
+	PURSUE,
+	PREPARE_ATTACK,
+	PERFORM_ATTACK
+}
 
 #region exports
 @export var character_type: CharacterType = CharacterType.NONE
@@ -70,9 +76,12 @@ enum BehaviourAction { NONE = 0, MOVE = 1, PURSUE = 2 }
 @export_group("Behaviour (non-player)")
 @export var behaviour_timer: Timer
 @export var detection_area: Area3D
+@export var navigation_agent: NavigationAgent3D
 #endregion exports
 
+#region variables
 const HALF_PI: float = PI / 2.0
+# TODO: Move below to exports?
 const MIN_DODGE_VELOCITY: float = 0.1
 const MAX_DODGE_VELOCITY_OFFSET: float = 1.0
 
@@ -82,6 +91,7 @@ var last_y_velocity: float = 0.0
 var camera_offset_pos: Vector3 = Vector3.ZERO
 var last_floor_y: float = 0.0
 var behaviour_action: BehaviourAction = BehaviourAction.NONE
+var target_last_position: Vector3 = Vector3.ZERO
 
 var target_character: CharacterBody3D
 
@@ -91,6 +101,7 @@ var target_character: CharacterBody3D
 @onready var original_albedo: Color = material.albedo_color
 # TODO: Remove one day, temporary for kill function lower down
 @onready var rigid_capsule_res: PackedScene = preload("res://RigidCapsule.tscn")
+#endregion variables
 
 func _ready() -> void:
 	update_stat_labels()
@@ -98,14 +109,16 @@ func _ready() -> void:
 		camera_offset_pos = camera.position
 
 	if character_type != CharacterType.PLAYER:
-		behaviour_action = randi_range(0, 1) as BehaviourAction
+		behaviour_action = randi_range(BehaviourAction.NONE, BehaviourAction.MOVE) as BehaviourAction
 		if behaviour_timer:
+			# TODO: Move wait time range to exports
 			behaviour_timer.wait_time = randf_range(2.0, 4.0)
 			behaviour_timer.connect("timeout", _on_behaviour_timer_timeout)
 			behaviour_timer.start()
 
 		if detection_area:
 			detection_area.connect("body_entered", _on_detection_area_body_entered)
+			detection_area.connect("body_exited", _on_detection_area_body_exited)
 
 func _process(delta: float) -> void:
 	#region inputs
@@ -139,20 +152,21 @@ func _process(delta: float) -> void:
 				update_stamina_label()
 	#endregion inputs
 	else:
-		if target_character and behaviour_action != BehaviourAction.PURSUE:
+		if target_character and behaviour_action < BehaviourAction.PURSUE:
 			var target_velocity: Vector3 = target_character.velocity.abs()
-			target_velocity.y = 0.0
-			if target_velocity > Vector3(0.1, 0.1, 0.1):
+			# TODO: Move min detection velocity to exports
+			if target_velocity.x > 0.1 or target_velocity.z > 0.1:
 				behaviour_timer.stop()
 				behaviour_action = BehaviourAction.PURSUE
 				input_vec = Vector2.ZERO
-				print("detected!")
 
 		match behaviour_action:
 			BehaviourAction.NONE:
 				input_vec = Vector2.ZERO
 			BehaviourAction.MOVE:
 				input_vec = Vector2.from_angle(-target_y_rotation + HALF_PI)
+			BehaviourAction.PURSUE:
+				pursue_target()
 
 	if stamina < max_stamina:
 		stamina += stamina_refill_rate * delta
@@ -205,12 +219,10 @@ func _on_behaviour_timer_timeout() -> void:
 	while behaviour_action == last_action:
 		behaviour_action = randi_range(0, 1) as BehaviourAction
 
-	match behaviour_action:
-		BehaviourAction.NONE:
-			pass
-		BehaviourAction.MOVE:
-			target_y_rotation = randf_range(0.0, TAU)
+	if behaviour_action == BehaviourAction.MOVE:
+		target_y_rotation = randf_range(0.0, TAU)
 
+	# TODO: Integrate exported wait range here too
 	behaviour_timer.wait_time = randf_range(2.0, 4.0)
 
 func _on_detection_area_body_entered(body: Node3D) -> void:
@@ -220,6 +232,10 @@ func _on_detection_area_body_entered(body: Node3D) -> void:
 			var char_type: CharacterType = chartype_prop
 			if char_type == CharacterType.PLAYER:
 				target_character = body
+
+func _on_detection_area_body_exited(_body: Node3D) -> void:
+	if character_type == CharacterType.ENEMY and target_character:
+		target_character = null
 
 # TODO: Replace kill function with proper game-over one day
 func kill() -> void:
@@ -243,6 +259,7 @@ func change_hp(amount: float) -> void:
 	hp += amount
 	check_hp()
 
+	# TODO: Replace damage effect one day
 	if hp < last_hp:
 		material.albedo_color = Color(1.0, 0.0, 0.0)
 
@@ -292,3 +309,28 @@ func update_camera(delta: float) -> void:
 			last_floor_y = position.y
 
 		camera.position.y = lerpf(camera.position.y, last_floor_y + camera_offset_pos.y, lerp_speed * camera_y_lerp_factor)
+
+func pursue_target() -> void:
+	if target_character:
+		target_last_position = target_character.position
+
+	if target_last_position:
+		# TODO: Move out max distance to export
+		if position.distance_squared_to(target_last_position) > 1.0:
+			navigation_agent.target_position = target_last_position
+			var next_pos: Vector3 = navigation_agent.get_next_path_position()
+			var last_rotation: Vector3 = rotation
+			look_at(next_pos)
+			target_y_rotation = rotation.y + PI
+			rotation = last_rotation
+			input_vec = Vector2.from_angle(-target_y_rotation + HALF_PI).normalized()
+		else:
+			input_vec = Vector2.ZERO
+			target_last_position = Vector3.ZERO
+			if target_character and behaviour_action == BehaviourAction.PURSUE:
+				behaviour_action = BehaviourAction.PREPARE_ATTACK
+				print("prepare attack")
+			else:
+				behaviour_action = BehaviourAction.NONE
+				behaviour_timer.start()
+				print("target lost, resuming idle behaviour")
