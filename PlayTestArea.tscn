@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://dcnmv0ax5hal0"]
+[gd_scene load_steps=27 format=3 uid="uid://dcnmv0ax5hal0"]
 
 [ext_resource type="Script" path="res://PlayTestArea.gd" id="1_3y566"]
 [ext_resource type="Texture2D" uid="uid://bl46w7pyeppcw" path="res://addons/kenney_prototype_textures/dark/texture_01.png" id="1_ul6ba"]
@@ -51,7 +51,7 @@ radius = 3.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_udnbu"]
 transparency = 1
-albedo_color = Color(1, 0.583333, 0, 0.501961)
+albedo_color = Color(1, 1, 1, 0.501961)
 
 [sub_resource type="SphereMesh" id="SphereMesh_wltcq"]
 material = SubResource("StandardMaterial3D_udnbu")
@@ -68,6 +68,17 @@ material = SubResource("StandardMaterial3D_atpvw")
 radius = 0.25
 height = 1.7
 radial_segments = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_alqdj"]
+transparency = 1
+albedo_color = Color(1, 1, 1, 0.501961)
+
+[sub_resource type="SphereMesh" id="SphereMesh_w6sno"]
+material = SubResource("StandardMaterial3D_alqdj")
+radius = 3.0
+height = 0.001
+radial_segments = 32
+rings = 16
 
 [sub_resource type="LabelSettings" id="LabelSettings_4e1vv"]
 font_color = Color(1, 0, 0, 1)
@@ -204,7 +215,7 @@ shape = SubResource("SphereShape3D_04a0i")
 [node name="DetectionMesh" type="MeshInstance3D" parent="Enemy2/DetectionArea2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.8, 0)
 cast_shadow = 0
-mesh = SubResource("SphereMesh_wltcq")
+mesh = SubResource("SphereMesh_w6sno")
 
 [node name="NavigationAgent2" type="NavigationAgent3D" parent="Enemy2"]
 avoidance_enabled = true

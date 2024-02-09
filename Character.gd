@@ -94,6 +94,8 @@ var behaviour_action: BehaviourAction = BehaviourAction.NONE
 var target_last_position: Vector3 = Vector3.ZERO
 
 var target_character: CharacterBody3D
+var detection_debug_material: StandardMaterial3D
+var detection_debug_target_colour: Color
 
 @onready var gravity: float = ProjectSettings.get("physics/3d/default_gravity")
 @onready var target_y_rotation: float = rotation.y
@@ -110,6 +112,7 @@ func _ready() -> void:
 
 	if character_type != CharacterType.PLAYER:
 		behaviour_action = randi_range(BehaviourAction.NONE, BehaviourAction.MOVE) as BehaviourAction
+
 		if behaviour_timer:
 			# TODO: Move wait time range to exports
 			behaviour_timer.wait_time = randf_range(2.0, 4.0)
@@ -119,6 +122,15 @@ func _ready() -> void:
 		if detection_area:
 			detection_area.connect("body_entered", _on_detection_area_body_entered)
 			detection_area.connect("body_exited", _on_detection_area_body_exited)
+
+			var detection_area_children: Array[Node] = detection_area.get_children()
+			for child: Node in detection_area_children:
+				if child is MeshInstance3D:
+					var detection_mesh: PrimitiveMesh = (child as MeshInstance3D).mesh
+					detection_debug_material = detection_mesh.material
+					detection_debug_target_colour = detection_debug_material.albedo_color
+
+		set_detection_debug_colour()
 
 func _process(delta: float) -> void:
 	#region inputs
@@ -159,6 +171,8 @@ func _process(delta: float) -> void:
 				behaviour_timer.stop()
 				behaviour_action = BehaviourAction.PURSUE
 				input_vec = Vector2.ZERO
+
+				set_detection_debug_colour()
 
 		match behaviour_action:
 			BehaviourAction.NONE:
@@ -210,6 +224,9 @@ func _physics_process(delta: float) -> void:
 	last_y_velocity = velocity.y
 
 	material.albedo_color = lerp(material.albedo_color, original_albedo, albedo_lerp_speed * delta)
+	if detection_debug_material:
+		# TODO: Export detection colour lerp speed?
+		detection_debug_material.albedo_color = lerp(detection_debug_material.albedo_color, detection_debug_target_colour, 5.0 * delta)
 
 	move_and_slide()
 	update_camera(delta)
@@ -217,13 +234,15 @@ func _physics_process(delta: float) -> void:
 func _on_behaviour_timer_timeout() -> void:
 	var last_action: BehaviourAction = behaviour_action
 	while behaviour_action == last_action:
-		behaviour_action = randi_range(0, 1) as BehaviourAction
+		behaviour_action = randi_range(BehaviourAction.NONE, BehaviourAction.MOVE) as BehaviourAction
 
 	if behaviour_action == BehaviourAction.MOVE:
 		target_y_rotation = randf_range(0.0, TAU)
 
 	# TODO: Integrate exported wait range here too
 	behaviour_timer.wait_time = randf_range(2.0, 4.0)
+
+	set_detection_debug_colour()
 
 func _on_detection_area_body_entered(body: Node3D) -> void:
 	if character_type == CharacterType.ENEMY and not target_character:
@@ -329,8 +348,23 @@ func pursue_target() -> void:
 			target_last_position = Vector3.ZERO
 			if target_character and behaviour_action == BehaviourAction.PURSUE:
 				behaviour_action = BehaviourAction.PREPARE_ATTACK
-				print("prepare attack")
 			else:
 				behaviour_action = BehaviourAction.NONE
 				behaviour_timer.start()
-				print("target lost, resuming idle behaviour")
+
+			set_detection_debug_colour()
+
+func set_detection_debug_colour() -> void:
+	if detection_debug_material:
+		match behaviour_action:
+			BehaviourAction.NONE:
+				detection_debug_target_colour = Color.WHITE
+			BehaviourAction.MOVE:
+				detection_debug_target_colour = Color.AQUAMARINE
+			BehaviourAction.PURSUE:
+				detection_debug_target_colour = Color.ORANGE
+			BehaviourAction.PREPARE_ATTACK:
+				detection_debug_target_colour = Color.DEEP_PINK
+			BehaviourAction.PERFORM_ATTACK:
+				detection_debug_target_colour = Color.RED
+		detection_debug_target_colour.a = 0.5
