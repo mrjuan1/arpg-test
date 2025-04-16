@@ -2,7 +2,7 @@
 
 ![Screenshot](screenshot.png)
 
-A small demo where you can move a character around, jump, dodge and run away from eneies that can attack you.i You can also take fall damage :)
+A small demo where you can move a character around, jump, dodge and run away from eneies that can attack you. You can also take fall damage :)
 
 Meant to be a small project for learning more about [Godot](https://godotengine.org).
 
