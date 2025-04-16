@@ -168,6 +168,8 @@ func _process(delta: float) -> void:
 					velocity.y = 0.0
 				stamina -= dodge_stamina
 				update_stamina_label()
+		elif Input.is_action_just_pressed("attack"):
+			pass
 	#endregion inputs
 	else:
 		if target_character and behaviour_action < BehaviourAction.PURSUE:
@@ -408,4 +410,4 @@ func set_detection_debug_colour() -> void:
 				detection_debug_target_colour = Color.DEEP_PINK
 			BehaviourAction.PERFORM_ATTACK:
 				detection_debug_target_colour = Color.RED
-		detection_debug_target_colour.a = 0.5
+		detection_debug_target_colour.a = 0.25

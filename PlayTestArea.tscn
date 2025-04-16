@@ -1,9 +1,9 @@
 [gd_scene load_steps=27 format=3 uid="uid://dcnmv0ax5hal0"]
 
-[ext_resource type="Script" path="res://PlayTestArea.gd" id="1_3y566"]
+[ext_resource type="Script" uid="uid://pwb3cl0okn5s" path="res://PlayTestArea.gd" id="1_3y566"]
 [ext_resource type="Texture2D" uid="uid://bl46w7pyeppcw" path="res://addons/kenney_prototype_textures/dark/texture_01.png" id="1_ul6ba"]
-[ext_resource type="Script" path="res://Character.gd" id="3_ppfwt"]
-[ext_resource type="Script" path="res://FPSLabel.gd" id="4_658dc"]
+[ext_resource type="Script" uid="uid://bpao7engudhbn" path="res://Character.gd" id="3_ppfwt"]
+[ext_resource type="Script" uid="uid://dksv81qskvlul" path="res://FPSLabel.gd" id="4_658dc"]
 [ext_resource type="LabelSettings" uid="uid://d2onoweiwnk37" path="res://LabelSettings.tres" id="4_jerlc"]
 [ext_resource type="Texture2D" uid="uid://bwwitdommt10m" path="res://addons/kenney_prototype_textures/red/texture_01.png" id="5_48ma0"]
 
@@ -305,6 +305,7 @@ grow_vertical = 0
 text = "Movement: Arrow keys/WSAD
 Jump: Ctrl/Space (can double-jump)
 Dodge: Shift
+Attack: / (slash) or E (not implemented yet)
 Quit: Escape"
 label_settings = ExtResource("4_jerlc")
 
